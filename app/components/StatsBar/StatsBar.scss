@@ -13,6 +13,7 @@
     display: flex;
     flex-direction: column;
     justify-content: center;
+    gap: s.$space-2;
 
     &--left {
       text-align: left;
@@ -39,7 +40,6 @@
         font-size: t.$fs-xs;
         font-weight: t.$fw-bold;
         color: c.$color-text-secondary;
-        margin-bottom: s.$space-1;
       }
 
       span:first-child ~ span {
