@@ -1,0 +1,16 @@
+@use "../abstracts/colors" as *;
+
+// :root {
+//   --color-primary: #{$blue-500};
+//   --color-background: light-dark(#{$cream-500}, #{$grey-800});
+//   --color-text: light-dark(#{$blue-500}, #{$cream-500});
+// }
+
+// :root {
+//   color-scheme: light dark;
+// }
+
+:root {
+  --color-background: #{$color-bg-primary};
+  --color-text: #{$color-text-primary};
+}

@@ -1,0 +1,114 @@
+// @use "sass:color";
+
+// $blue-500: #1322a5;
+// $blue-700: #10132E;
+// $blue-800: #0A0D2A;
+// $blue-900: #040625;
+
+// // Keep your existing darks
+// $blue-700: #10132E;
+// $blue-800: #0A0D2A;
+// $blue-900: #040625;
+// $blue-500: #1322a5;
+
+// // Generate lighter variants
+// $blue-100: color.mix(white, $blue-500, 85%);
+// $blue-200: color.mix(white, $blue-500, 70%);
+// $blue-300: color.mix(white, $blue-500, 50%);
+// $blue-400: color.mix(white, $blue-500, 25%);
+// $blue-600: color.mix($blue-500, $blue-700, 60%);
+
+// $grey-800: #4b4b59;
+
+// $cream-base: #fff5ed;
+
+// // Lighter variants
+// $cream-100: color.mix(white, $cream-base, 70%);
+// $cream-200: color.mix(white, $cream-base, 50%);
+// $cream-300: color.mix(white, $cream-base, 30%);
+// $cream-400: color.mix(white, $cream-base, 15%);
+// $cream-500: $cream-base;
+
+// // Darker variants
+// $cream-600: color.mix($cream-base, $grey-800, 90%);
+// $cream-700: color.mix($cream-base, $grey-800, 80%);
+// $cream-800: color.mix($cream-base, $grey-800, 70%);
+// $cream-900: color.mix($cream-base, $grey-800, 60%);
+
+// //  Main colors & shades //
+// $clr-primary: hsl(210, 36%, 40%);
+// $clr-primary-300: hsl(210, 36%, 50%);
+// $clr-primary-400: hsl(210, 36%, 45%);
+// $clr-primary-500: $clr-primary;
+// $clr-primary-600: hsl(210, 36%, 35%);
+// $clr-primary-700: hsl(210, 36%, 30%);
+
+// $clr-secondary: hsl(276, 16%, 41%);
+// $clr-secondary-300: hsl(276, 16%, 51%);
+// $clr-secondary-400: hsl(276, 16%, 46%);
+// $clr-secondary-500: $clr-secondary;
+// $clr-secondary-600: hsl(276, 16%, 36%);
+// $clr-secondary-700: hsl(276, 16%, 31%);
+
+// // $clr-accent: hsl(21, 69%, 68%);
+// $clr-accent: hsl(21, 69%, 78%);
+// $clr-accent-100: color.scale($clr-accent, $lightness: 40%, $saturation: -20%);
+// $clr-accent-200: color.scale($clr-accent, $lightness: 30%, $saturation: -15%);
+// $clr-accent-300: color.scale($clr-accent, $lightness: 20%, $saturation: -10%);
+// $clr-accent-400: color.scale($clr-accent, $lightness: 10%, $saturation: -5%);
+// $clr-accent-500: $clr-accent;
+// $clr-accent-600: color.scale($clr-accent, $lightness: -10%, $saturation: 5%);
+// $clr-accent-700: color.scale($clr-accent, $lightness: -20%, $saturation: 10%);  
+// $clr-accent-800: color.scale($clr-accent, $lightness: -30%, $saturation: 15%);
+// $clr-accent-900: color.scale($clr-accent, $lightness: -40%, $saturation: 20%);
+
+// $clr-text: rgb(35, 27, 39);
+// $clr-text-100: color.scale($clr-text, $lightness: 80%, $saturation: -70%);
+// $clr-text-200: color.scale($clr-text, $lightness: 60%, $saturation: -50%);
+// $clr-text-300: color.scale($clr-text, $lightness: 40%, $saturation: -30%);
+// $clr-text-400: color.scale($clr-text, $lightness: 20%, $saturation: -10%);
+// $clr-text-500: $clr-text;
+// $clr-text-600: color.scale($clr-text, $lightness: -20%, $saturation: 10%);
+// $clr-text-700: color.scale($clr-text, $lightness: -30%, $saturation: 30%);
+// $clr-text-800: color.scale($clr-text, $lightness: -40%, $saturation: 50%);
+// $clr-text-900: color.scale($clr-text, $lightness: -50%, $saturation: 70%);
+
+// $clr-background: hsl(0, 0%, 96%);
+// $clr-background-100: color.adjust($clr-background, $lightness: 400%);
+// $clr-background-200: color.adjust($clr-background, $lightness: 20%);
+// $clr-background-300: color.adjust($clr-background, $lightness: 10%);
+// $clr-background-400: color.adjust($clr-background, $lightness: 5%);
+// $clr-background-500: $clr-background;
+// $clr-background-600: color.adjust($clr-background, $lightness: -5%);
+// $clr-background-700: color.adjust($clr-background, $lightness: -10%);
+// $clr-background-800: color.adjust($clr-background, $lightness: -20%);
+// $clr-background-900: color.adjust($clr-background, $lightness: -40%);
+
+// $clr-success: #60B86D;
+// $clr-error: #D86969;
+// $clr-danger: #D86969;
+
+// Backgrounds
+$color-bg-dark:         #1e1e1e;
+$color-bg-primary:      #2f2c2c;   // outer page background
+$color-bg-card:         #2a2a2a;   // stat bar, toolbar card bg
+$color-bg-surface:      #3a3a3a;   // gate cells, pill buttons
+
+// Accent
+$color-accent-red:      #e03030;   // gate display border + End button
+$color-accent-green:    #3ecf6b;   // Start button
+$color-accent-yellow:   #e0c030;   // gate 1 highlight border
+$color-accent-purple:   #7c3aed;   // gate 2 highlight border
+$color-accent-purple-muted: #5b4a7a; // sector cell border/bg
+
+$color-danger: #de4e45;
+$color-success: #4ea93a;
+
+// Text
+$color-text-primary:    #ffffff;
+$color-text-secondary:  #aaaaaa;   // "Best Lap", "Session" labels
+$color-text-muted:      #666666;   // secondary stat values
+
+// Interactive
+$color-btn-pill-bg:     #3a3a3a;
+$color-btn-pill-text:   #cccccc;

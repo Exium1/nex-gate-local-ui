@@ -1,0 +1,43 @@
+@use "../../styles/abstracts/spacing" as s;
+@use "../../styles/abstracts/colors" as c;
+@use "../../styles/abstracts/type" as t;
+
+.button {
+  display: inline-flex;
+  align-items: center;
+  border: none;
+  padding-inline: s.$space-4;
+  padding-block: s.$space-3;
+  cursor: pointer;
+  flex: 1;
+  border-radius: s.$space-2;
+  justify-content: center;
+  font-size: t.$fs-sm;
+  font-weight: t.$fw-semi-bold;
+  color: c.$color-text-primary;
+  gap: s.$space-1;
+
+  // Variants (default - solid)
+  &--plain {
+    background: none;
+  }
+
+
+  // Colors (default - neutral)
+  &--danger {
+    background: c.$color-danger;
+  }
+
+  &--success {
+    background: c.$color-success;
+  }
+
+  &--neutral {
+    color: c.$color-bg-primary;
+  }
+
+  // Sizes (default - medium)
+  &--md {
+
+  }
+}

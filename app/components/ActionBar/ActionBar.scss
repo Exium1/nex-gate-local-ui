@@ -1,0 +1,17 @@
+@use "../../styles/abstracts/spacing" as s;
+@use "../../styles/abstracts/colors" as c;
+
+.action-bar {
+  display: flex;
+  padding: s.$space-2;
+  background-color: c.$color-bg-dark;
+  border-radius: s.$space-4;
+  flex-direction: column;
+  gap: s.$space-2;
+
+  .primary-actions, .secondary-actions {
+    display: flex;
+    flex-basis: 1;
+    gap: s.$space-2;
+  }
+}

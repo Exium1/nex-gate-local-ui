@@ -1,0 +1,28 @@
+@use "./colors" as *;
+
+// @mixin flex($direction: row, $gap: 0, $align: normal, $justify: normal, $wrap: nowrap) {
+//   display: flex;
+//   flex-direction: $direction;
+//   gap: $gap;
+//   align-items: $align;
+//   justify-content: $justify;
+//   flex-wrap: $wrap;
+// }
+
+// @mixin shadow($level: 1) {
+//   @if $level == 1 {
+//     box-shadow: 0 0 0.5rem rgba($clr-text-500, 0.05);
+//   } @else if $level == 2 {
+//     box-shadow: 0 0 1rem rgba($clr-text-500, 0.1);
+//   } @else if $level == 3 {
+//     box-sizing: 0 0 1.2rem rgba($clr-text-500, 0.15);
+//   } @else if $level == 4 {
+//     box-shadow: 0 0 1.6rem rgba($clr-text-500, 0.2);
+//   } @else if $level == 5 {
+//     box-shadow: 0 0 2rem rgba($clr-text-500, 0.25);
+//   } @else if $level == 6 {
+//     box-shadow: 0 0 2.5rem rgba($clr-text-500, 0.3);
+//   } @else {
+//     box-shadow: 0 0 3rem rgba($clr-text-500, 0.1);
+//   }
+// }

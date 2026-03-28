@@ -1,0 +1,22 @@
+@use "../../../styles/abstracts/spacing" as s;
+
+.fullscreen-shell {
+
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  height: 100dvh;
+  padding: s.$space-2;
+
+  &__header {
+
+  }
+
+  &__content {
+
+  }
+
+  &__footer {
+    margin-top: auto;
+  }
+}
