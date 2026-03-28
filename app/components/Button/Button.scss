@@ -20,6 +20,7 @@
   // Variants (default - solid)
   &--plain {
     background: none;
+    color: c.$color-text-primary;
   }
 
 
@@ -33,7 +34,14 @@
   }
 
   &--neutral {
-    color: c.$color-bg-primary;
+
+    &.button--solid {
+      background: c.$color-btn-pill-text;
+    }
+    
+    &:not(.button--plain) {
+      color: c.$color-bg-primary;
+    }
   }
 
   // Sizes (default - medium)

@@ -1,0 +1,38 @@
+@use "../../styles/abstracts/spacing" as s;
+@use "../../styles/abstracts/colors" as c;
+@use "../../styles/abstracts/type" as t;
+
+.button-selector {
+  position: relative;
+  display: inline-flex;
+  flex: 1;
+
+  span {
+    display: inline-flex;
+    border: none;
+    padding-inline: s.$space-4;
+    padding-block: s.$space-2;
+    cursor: pointer;
+    flex: 1;
+    border-radius: s.$space-6;
+    justify-content: center;
+    font-size: t.$fs-xs;
+    font-weight: t.$fw-bold;
+    gap: s.$space-1;
+    color: c.$color-btn-pill-bg;
+    background: c.$color-btn-pill-text;
+    align-items: center;
+  }
+
+  select {
+    opacity: 0;
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    cursor: pointer;
+    border: none;
+    padding: 0;
+  }
+}
