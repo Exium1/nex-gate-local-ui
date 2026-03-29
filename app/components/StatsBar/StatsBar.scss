@@ -7,13 +7,12 @@
   grid-template-columns: repeat(3, 1fr);
   background-color: c.$color-bg-surface;
   border-radius: s.$space-4;
-  padding: s.$space-2;
+  padding: s.$space-4;
 
   .stats-group {
     display: flex;
     flex-direction: column;
     justify-content: center;
-    gap: s.$space-2;
 
     &--left {
       text-align: left;

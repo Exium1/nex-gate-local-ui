@@ -1,0 +1,10 @@
+@use "../../../styles/abstracts/type" as t;
+@use "../../../styles/abstracts/spacing" as s;
+
+.gates-live {
+  display: flex;
+  flex-direction: column;
+  gap: s.$space-4;
+  justify-content: center;
+  align-items: center;
+}

@@ -1,0 +1,7 @@
+@use "../../styles/abstracts/spacing" as s;
+
+.header {
+  display: flex;
+  justify-content: center;
+  margin-top: s.$space-8;
+}

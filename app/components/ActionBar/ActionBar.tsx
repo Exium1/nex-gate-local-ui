@@ -1,15 +1,21 @@
 import Button from "../Button/Button";
-import { FaPause, FaVolumeXmark, FaVolumeHigh, FaVolumeLow, FaArrowsSpin, FaClock } from "react-icons/fa6";
+import { FaPause, FaVolumeXmark, FaVolumeHigh, FaVolumeLow, FaArrowsSpin, FaClock, FaPlay } from "react-icons/fa6";
 import { RiGogglesLine } from "react-icons/ri";
 import "./ActionBar.scss";
 import { useState } from "react";
-import ButtonSelector from "../ButtonSelector/ButtonSelector";
+import ButtonSelector, { type ButtonSelectorOption, type ButtonSelectorProps } from "../ButtonSelector/ButtonSelector";
 
-export default function ActionBar() {
+export type ActionBarProps = {
+  primaryActions?: React.ReactNode;
+}
+
+export default function ActionBar({ primaryActions }: ActionBarProps) {
+
   return (
     <div className="action-bar">
       <div className="secondary-actions">
         <ButtonSelector
+          key="audio"
           options={[
             { value: "audio_on", label: "Audio", presented: "All audio on", icon: <FaVolumeHigh /> },
             { value: "audio_only_lap", label: "Audio", presented: "Only lap times", icon: <FaVolumeLow /> },
@@ -18,6 +24,7 @@ export default function ActionBar() {
           onOptionChange={(option) => console.log(option)} 
         />
         <ButtonSelector
+          key="mode"
           options={[
             { value: "time_trial", label: "Time Trial", presented: "Time trial", icon: <FaClock /> },
             { value: "race", label: "Race", presented: "Race", icon: <FaArrowsSpin  /> }]} 
@@ -25,6 +32,7 @@ export default function ActionBar() {
           onOptionChange={(option) => console.log(option)} 
         />
         <ButtonSelector
+          key="pilot"
           options={[
             { value: "pilot", label: "Pilot", presented: "Default pilot", icon: <RiGogglesLine /> },
             { value: "exium", label: "exium", presented: "exium", icon: <RiGogglesLine /> },
@@ -33,10 +41,7 @@ export default function ActionBar() {
           onOptionChange={(option) => console.log(option)} 
         />
       </div>
-      <div className="primary-actions">
-        <Button variant="solid" color="danger" size="md">End</Button>
-        <Button variant="plain" color="neutral" size="md"><FaPause />Pause</Button>
-      </div>
+      <div className="primary-actions">{primaryActions}</div>
     </div>
   );
 }

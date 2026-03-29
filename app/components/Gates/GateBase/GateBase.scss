@@ -1,0 +1,170 @@
+@use "../../../styles/abstracts/spacing" as s;
+@use "../../../styles/abstracts/colors" as c;
+@use "../../../styles/abstracts/type" as t;
+@use 'sass:color';
+
+.gate-base {
+  display: inline-flex;
+  justify-content: center;
+  align-items: center;
+  border-style: solid;
+  border-radius: s.$space-2;
+  background-color: color.adjust(#92849a, $lightness: -40%);;
+  border-color: #92849a;
+  position: relative;
+  z-index: 1;
+  transition: 200ms ease-in-out;
+  transform-origin: 50% 50%;
+
+  .point {
+    width: s.$space-2;
+    height: s.$space-2;
+    border-radius: 50%;
+    position: absolute;
+    transform: translate(-50%, 50%);
+    z-index: -1;
+    background-color: color.adjust(#92849a, $lightness: 40%);
+  }
+
+  // Colors (default: neutral)
+  &--purple {
+    background-color: color.adjust(c.$color-accent-purple, $lightness: -40%);
+    border-color: c.$color-accent-purple;
+
+    .point {
+      background-color: color.adjust(c.$color-accent-purple, $lightness: 40%);
+    }
+  }
+
+  &--yellow {
+    background-color: color.adjust(c.$color-accent-yellow, $lightness: -40%);
+    border-color: c.$color-accent-yellow;
+
+    .point {
+      background-color: color.adjust(c.$color-accent-yellow, $lightness: 40%);
+    }
+  }
+
+  &--green {
+    background-color: color.adjust(c.$color-accent-green, $lightness: -40%);
+    border-color: c.$color-accent-green;
+
+    .point {
+      background-color: color.adjust(c.$color-accent-green, $lightness: 40%);
+    }
+  }
+
+  &--red {
+    background-color: color.adjust(c.$color-accent-red, $lightness: -40%);
+    border-color: c.$color-accent-red;
+
+    .point {
+      background-color: color.adjust(c.$color-accent-red, $lightness: 40%);
+    }
+  }
+
+
+
+  // Sizes (default: medium)
+  &--xs {
+    width: 30px;
+    height: 30px;
+    border-width: 0.15rem;
+
+    .point {
+      width: s.$space-1;
+      height: s.$space-1;
+    }
+
+    .gate-base__text {
+      font-size: t.$fs-xs;
+    }
+
+    &.gate-base--active {
+      width: 40px;
+      height: 40px;
+    }
+  }
+
+  &--sm {
+    width: 40px;
+    height: 40px;
+    border-width: 0.15rem;
+
+    .point {
+      width: s.$space-1;
+      height: s.$space-1;
+    }
+
+    .gate-base__text {
+      font-size: t.$fs-sm;
+    }
+
+    &.gate-base--active {
+      width: 50px;
+      height: 50px;
+    }
+  }
+
+  &--md {
+    width: 60px;
+    height: 60px;
+    border-width: 0.2rem;
+
+    .point {
+      width: s.$space-2;
+      height: s.$space-2;
+    }
+
+    .gate-base__text {
+      font-size: t.$fs-base;
+    }
+
+    &.gate-base--active {
+      width: 75px;
+      height: 75px;
+    }
+  }
+
+  &--lg {
+    width: 100px;
+    height: 100px;
+    border-width: 0.25rem;
+
+    .point {
+      width: s.$space-3;
+      height: s.$space-3;
+    }
+    
+    .gate-base__text {
+      font-size: t.$fs-lg;
+      font-weight: t.$fw-semi-bold;
+    }
+
+    &.gate-base--active {
+      width: 125px;
+      height: 125px;
+    }
+  }
+
+  &--xl {
+    width: 150px;
+    height: 150px;
+    border-width: 0.35rem;
+
+    .point {
+      width: s.$space-4;
+      height: s.$space-4;
+    }
+    
+    .gate-base__text {
+      font-size: t.$fs-xl;
+      font-weight: t.$fw-semi-bold;
+    }
+
+    &.gate-base--active {
+      width: 200px;
+      height: 200px;
+    }
+  }
+}

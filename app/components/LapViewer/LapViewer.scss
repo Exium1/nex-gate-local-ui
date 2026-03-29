@@ -1,0 +1,42 @@
+@use "../../styles/abstracts/colors" as c;
+@use "../../styles/abstracts/type" as t;
+@use "../../styles/abstracts/spacing" as s;
+
+.lap-viewer {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: s.$space-4;
+
+  .lap-selector {
+    margin-bottom: s.$space-2;
+  }
+
+  .stats {
+    display: flex;
+    flex-direction: column;
+    text-align: center;
+
+    span {
+      font-size: t.$fs-lg;
+      font-weight: t.$fw-bold;
+    }
+
+    span:first-child {
+      font-size: t.$fs-xs;
+      font-weight: t.$fw-bold;
+      color: c.$color-text-secondary;
+    }
+
+    span:first-child ~ span {
+      color: c.$color-text-primary;
+    }
+  }
+
+  .lap-list {
+    display: flex;
+    justify-content: center;
+    flex-wrap: wrap;
+    gap: s.$space-3;
+  }
+}

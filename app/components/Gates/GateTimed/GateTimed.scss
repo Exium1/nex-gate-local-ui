@@ -1,0 +1,27 @@
+@use "../../../styles/abstracts/type" as t;
+@use "../../../styles/abstracts/spacing" as s;
+
+.gate-timed {
+  display: inline-flex;
+  flex-direction: column;
+  align-items: center;
+  gap: s.$space-1;
+  transition: 200ms ease-in-out;
+  transition: width 2s, height 4s; 
+
+  > span {
+    font-size: t.$fs-2xs;
+    font-weight: t.$fw-semi-bold;
+  }
+
+  .gate-timed_number {
+    font-size: t.$fs-sm;
+  }
+
+  // &--active {
+  //   .gate-base {
+  //     height: 50px;
+  //     width: 50px;
+  //   }
+  // }
+}

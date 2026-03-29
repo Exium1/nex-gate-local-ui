@@ -6,14 +6,22 @@
   flex-direction: column;
   height: 100vh;
   height: 100dvh;
+  max-height: 100vh;
+  max-height: 100dvh;
   padding: s.$space-2;
+  gap: s.$space-2;
+  max-width: 500px;
+  margin: 0 auto;
 
   &__header {
 
   }
 
   &__content {
-
+    flex: 1;
+    flex-direction: column;
+    overflow-y: scroll;
+    align-content: center;
   }
 
   &__footer {
