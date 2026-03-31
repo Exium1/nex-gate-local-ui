@@ -13,6 +13,7 @@ import Button from "~/components/Button/Button";
 import { FaPause, FaPlay } from "react-icons/fa6";
 import { route } from "@react-router/dev/routes";
 import { useNavigate } from "react-router";
+import { useRace } from "~/context/RaceContext";
 
 export function meta({}: Route.MetaArgs) {
   return [
@@ -21,18 +22,19 @@ export function meta({}: Route.MetaArgs) {
 }
 
 const gatesData: GateTimedProps[] = [
+  { number: 0, color: "neutral", size: "sm", finishLine: true },
   { number: 1 },
   { number: 2 },
   { number: 3 },
   { number: 4 },
-  { number: 5 },
-  { number: 6 },
-  { number: 7 },
-  { number: 8 },
-  { number: 9 },
-  { number: 10 },
-  { number: 11 },
-  { number: 12, color: "neutral", size: "sm", finishLine: true},
+  // { number: 5 },
+  // { number: 6 },
+  // { number: 7 },
+  // { number: 8 },
+  // { number: 9 },
+  // { number: 10 },
+  // { number: 11 },
+  // { number: 12 },
 ]
 
 type SessionSettings = {
@@ -43,7 +45,7 @@ type SessionSettings = {
 
 export default function Live() {
 
-  const [activeGateIndex, setActiveGateIndex] = useState(0);
+  // const [activeGateIndex, setActiveGateIndex] = useState(0);
   const [sessionPaused, setSessionPaused] = useState(false);
   const navigate = useNavigate();
 
@@ -53,6 +55,8 @@ export default function Live() {
       navigate("/results");
     }
   }
+
+  const { gatesData } = useRace();
 
   return (
     <FullscreenShell
@@ -85,8 +89,15 @@ export default function Live() {
       }
     >
       <GatesLive
-        gates={gatesData}
-        activeGateIndex={activeGateIndex}
+        gates={gatesData.gates.map((gateData) => {console.log(gateData); return ({
+          x: gateData?.beamX,
+          y: gateData?.beamY,
+          active: (gateData?.gateId == gatesData.expectedGateId),
+          finishLine: (gateData?.gateId == 0),
+          subtitle: ((gateData?.intervalMs || 0) / 1000).toString(),
+          number: gateData?.gateId
+        } as GateTimedProps)})}
+        activeGateIndex={gatesData.expectedGateId}
       />
     </FullscreenShell>
   );

@@ -14,7 +14,7 @@ export default function GatesLive({ gates, activeGateIndex }: GatesLiveProps) {
       <span>Gate 3</span>
       <GateBase
         size="xl"
-        text="-1.993"
+        text="Waiting for lap start..."
         className="gates-live__main"
       />
       <GatesCarousel
