@@ -3,6 +3,7 @@ import GateBase from "../GateBase/GateBase";
 import GatesCarousel from "../GatesCarousel/GatesCarousel";
 import "./GatesLive.scss"
 import { useEffect, useRef, useState } from "react";
+import { useTimer } from "~/hooks/useTimer";
 
 export type GatesLiveProps = {
   gateHistory: GateData[]; 
@@ -11,36 +12,13 @@ export type GatesLiveProps = {
 }
 
 export default function GatesLive({ gateHistory, gateCount, expectedGateId }: GatesLiveProps) {
-  const [elapsedMs, setElapsedMs] = useState<number | null>(null);
-  const startTimeRef = useRef<number | null>(null);
-  const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
+  const { elapsedMs, start } = useTimer();
+  const display = elapsedMs === null ? "—" : (elapsedMs / 1000).toFixed(3);
 
   useEffect(() => {
-
-    if (gateHistory.length === 0) return; // No entries (lap hasn't started)
-
-    // Clear any previous interval
-    if (intervalRef.current !== null) {
-      clearInterval(intervalRef.current);
-    }
-
-    startTimeRef.current = performance.now();
-    setElapsedMs(0);
-
-    intervalRef.current = setInterval(() => {
-      setElapsedMs(performance.now() - startTimeRef.current!);
-    }, 10);
-
-    return () => {
-      if (intervalRef.current !== null) {
-        clearInterval(intervalRef.current);
-      }
-    };
+    if (gateHistory.length === 0) return;
+    start();
   }, [gateHistory, expectedGateId]);
-
-  const display = elapsedMs === null
-    ? "—"
-    : (elapsedMs / 1000).toFixed(3);
 
   return (
     <div className="gates-live">
