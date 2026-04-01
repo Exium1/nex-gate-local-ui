@@ -1,84 +1,54 @@
 import { createContext, useContext, useReducer, useEffect } from 'react'
 import { socketService } from '../services/socket'
-import type { GateEvent, RichGateEvent } from '~/types/GateEvent'
+import type { GateData, GateEvent, GatesData, RichGateEvent } from '~/types/gates'
+import { LimitedQueue, SortedLimitedQueue } from '~/helpers/LimitedQueue'
+import type { Lap, LapData, LapStats } from '~/types/laps'
 
 type RaceState = {
-  status: 'idle' | 'active' | 'finished'
-  raceId: string | null
-  lapTimes: { pilotName: string; lapNumber: number; lapTimeMs: number }[]
-  lastGateTrigger: { gateId: string; droneId: string } | null
-  gatesData: GatesData
-}
-
-// Front end object
-export type GateData = {
-  id: string 
-  gateId: number 
-  raceSessionId: string 
-  lapId: string 
-  pilotName: string 
-  beamX: number
-  beamY: number
-  color: "purple" | "yellow" | "green" | "red" | "neutral"
-  triggeredAt: number 
-  intervalMs: string // "1.353"  
-  prevLapSplitDiffMs?: string // "-1.430" Might not be found if not previous lap exists
-}
-
-export type GateDataDummy = {
-  gateId: number
-}
-
-type GatesData = {
-  expectedGateId: number, // Expected gate id / index (synonymous)
-  gates: (GateData | GateDataDummy)[] // Null means no gate data exists yet (keep default unknown styling)
+  // status: 'idle' | 'active' | 'finished'
+  // raceId: string | null
+  // lapTimes: { pilotName: string; lapNumber: number; lapTimeMs: number }[]
+  // lastGateTrigger: { gateId: string; droneId: string } | null
+  gatesData: GatesData,
+  lapStats: LapStats,
 }
 
 type RaceAction =
-  | { type: 'race_started';      payload: { raceId: string } }
-  | { type: 'race_ended';        payload: { raceId: string } }
-  | { type: 'gate_trigger';      payload: { gateId: string; droneId: string } }
-  | { type: 'lap_complete';      payload: { pilotName: string; lapNumber: number; lapTimeMs: number } }
-  | { type: 'rich_gate_event';   payload: RichGateEvent }
+ | { type: 'rich_gate_event';   payload: RichGateEvent }
+ | { type: 'lap_complete';     payload: Lap }
+  // | { type: 'race_started';      payload: { raceId: string } }
+  // | { type: 'race_ended';        payload: { raceId: string } }
+  // | { type: 'lap_complete';      payload: { pilotName: string; lapNumber: number; lapTimeMs: number } }
+
+const gateCount = 4;
 
 const initialState: RaceState = {
-  status: 'idle',
-  raceId: null,
-  lapTimes: [],
-  lastGateTrigger: null,
   gatesData: {
     expectedGateId: 0,
-    gates: [
-      { gateId: 0 },
-      { gateId: 1 },
-      { gateId: 2 },
-      { gateId: 3 }
-    ]
+    gateHistory: [],
+    gateCount: gateCount
+  },
+  lapStats: {
+    lapCount: 0,
+    lapHistory: [],
+    topLapHistory: []
   }
 }
 
+const raceGateHistory = new LimitedQueue<GateData>(5); // NOT GATE COUNT
+const lapHistory = new LimitedQueue<LapData>(2);
+const topLapHistory = new SortedLimitedQueue<LapData>(3, (a, b) => a.lapTime - b.lapTime); // Ascending
+
 function raceReducer(state: RaceState, action: RaceAction): RaceState {
   switch (action.type) {
-    case 'race_started':
-      return { ...state, status: 'active', raceId: action.payload.raceId, lapTimes: [] }
-    case 'race_ended':
-      return { ...state, status: 'finished' }
-    case 'gate_trigger':
-      return { ...state, lastGateTrigger: action.payload }
-    case 'lap_complete':
-      return { ...state, lapTimes: [...state.lapTimes, action.payload] }
     case 'rich_gate_event':
-      // Convert RichGateEvent to GateEvent and handle any needed data
+      console.log('> rich_gate_event')
       console.log(action.payload);
 
       const richGateEvent = action.payload;
-      if (richGateEvent.gate_id > 4) return state; // Dismiss if incorrect gate. VVV
-      const nextExpectedGateId = (richGateEvent.gate_id + 1) % 4; // TODO: Extract gate count
+      if (richGateEvent.gate_id > (gateCount - 1)) return state; // Dismiss if incorrect gate. VVV
 
-      // TODO: If Lap 0 reset all gates (to dummy gate)
-      // Currently just override the gate data
-      let gates = state.gatesData.gates
-
+      const nextExpectedGateId = (richGateEvent.gate_id + 1) % gateCount; // TODO: Extract gate count
       const newGateData: GateData = {
         id: richGateEvent.id,
         gateId: richGateEvent.gate_id,
@@ -95,18 +65,44 @@ function raceReducer(state: RaceState, action: RaceAction): RaceState {
           richGateEvent.best_session_split_diff_ms ? (richGateEvent.best_session_split_diff_ms / 1000).toFixed(3) : undefined
       }
 
-      // Set gate with new data
-      gates[richGateEvent.gate_id] = newGateData;
-      gates[nextExpectedGateId] = {
-        gateId: nextExpectedGateId
-      }; // Clear entry (to appear as incomplete)
+      if (!raceGateHistory.queue.find((gate) => gate.id === newGateData.id)) // Dismiss duplicate write
+        raceGateHistory.enqueue(newGateData);
 
       const newGatesData: GatesData = {
         expectedGateId: nextExpectedGateId,
-        gates
+        gateHistory: raceGateHistory.queue,
+        gateCount: gateCount
       }
 
       return { ...state, gatesData: newGatesData }
+    case 'lap_complete':
+      console.log('> lap_complete')
+      console.log(action.payload);
+
+      const newLap = action.payload;
+      const newLapData: LapData = {
+        id: newLap.id,
+        raceSessionId: newLap.race_session_id,
+        pilotName: newLap.pilot_name,
+        lapTime: newLap.lap_time_ms,
+        gateCount: newLap.gate_count,
+        startedAt: newLap.started_at
+      }
+
+      if (!lapHistory.queue.find((lap) => lap.id === newLapData.id)) {
+        lapHistory.enqueue(newLapData);
+      }
+
+      if (!topLapHistory.queue.find((lap) => lap.id === newLapData.id))
+        topLapHistory.enqueue(newLapData);
+
+      const newLapStats: LapStats = {
+        lapCount: state.lapStats.lapCount + 1,
+        lapHistory: lapHistory.queue,
+        topLapHistory: topLapHistory.queue
+      }
+
+      return { ...state, lapStats: newLapStats }
     default:
       return state
   }
@@ -119,7 +115,7 @@ export function RaceProvider({ children }: { children: React.ReactNode }) {
 
   useEffect(() => {
     return socketService.subscribe((msg: any) => {
-      if (['race_started', 'race_ended', 'gate_trigger', 'lap_complete', 'rich_gate_event'].includes(msg.type)) {
+      if (['rich_gate_event', 'lap_complete'].includes(msg.type)) {
         dispatch(msg as RaceAction)
       }
     })

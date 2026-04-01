@@ -26,6 +26,10 @@
     z-index: -1;
     background-color: color.adjust(#92849a, $lightness: 40%);
   }
+
+  &.hidden {
+    visibility: hidden;
+  }
   
   &__text {
     max-width: 70%;

@@ -1,50 +1,54 @@
-import type { GateData, GateDataDummy } from "~/context/RaceContext";
 import GateTimed from "../GateTimed/GateTimed";
 import "./GatesCarousel.scss"
+import type { GateData } from "~/types/gates";
 
 export type GatesCarouselProps = {
-  gates: (GateData | GateDataDummy)[]; // Active gate will be centered
-  activeGateIndex: number;
+  gateHistory: GateData[]; 
+  gateCount: number
+  expectedGateId: number; // Active (next/expected) gate will be centered
 }
 
-export default function GatesCarousel({ gates, activeGateIndex }: GatesCarouselProps) {
+export default function GatesCarousel({ gateHistory, gateCount, expectedGateId }: GatesCarouselProps) {
 
   const visibleGatesCount = 9; // Odd number to center (NOT related to gate count)
-  const visibleGates: (GateData | GateDataDummy)[] = [];
+  const visibleGatesSideCount = Math.floor(visibleGatesCount / 2);
+  const visibleGates: GateData[] = gateHistory.slice(-1 * visibleGatesSideCount);
+  const dummyGates = new Array(visibleGatesSideCount - visibleGates.length).fill(1);
+  const futureGateIds = [];
 
-  // Circular logic
-  var i = 0;
-  while (i < visibleGatesCount) {
-    const index = (activeGateIndex - Math.floor(visibleGatesCount / 2) + i + gates.length) % gates.length;
-    if (index >= 0 && index < gates.length) {
-      visibleGates.push(gates[index]);
-    }
-    i++;
+  while (futureGateIds.length < visibleGatesSideCount + 1) {
+    futureGateIds.push((expectedGateId + (futureGateIds.length)) % gateCount);
   }
 
   return (
     <div className="gates-carousel">
+      {dummyGates.map((_, index) => (
+        <GateTimed
+          key={index}
+          number={index}
+          size="xs"
+          className="hidden"
+        />
+      ))}
       {visibleGates.map((gate, index) => (
-        index >= Math.floor(visibleGatesCount / 2) ? (
-          <GateTimed
-            key={index}
-            subtitle={"-"}
-            number={gate?.gateId}
-            size="xs"
-            active={index === Math.floor(visibleGatesCount / 2)} // This works ??
-          />
-        ) : (
-          <GateTimed
-            key={index}
-            subtitle={'intervalMs' in gate ? gate.intervalMs : "-"}
-            number={gate?.gateId} // Always there
-            x={'beamX' in gate ? gate.beamX : undefined}
-            y={'beamY' in gate ? gate.beamY : undefined}
-            color={'color' in gate ? gate.color : undefined}
-            size="xs"
-            active={index === Math.floor(visibleGatesCount / 2)} // This works ??
-          />
-        )
+        <GateTimed
+          key={index}
+          subtitle={gate.intervalMs ?? "—"}
+          number={gate.gateId}
+          x={gate.beamX}
+          y={gate.beamY}
+          color={gate.color}
+          size="xs"
+        />
+      ))}
+      {futureGateIds.map((id, index) => (
+        <GateTimed
+          key={index}
+          subtitle={"—"}
+          number={id}
+          size="xs"
+          active={index === 0}
+        />
       ))}
     </div>
   )

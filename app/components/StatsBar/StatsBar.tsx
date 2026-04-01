@@ -1,4 +1,6 @@
+import { useEffect, useRef, useState } from "react";
 import "./StatsBar.scss";
+import { useRace } from "~/context/RaceContext";
 
 export type Stat = {
   label: string;
@@ -33,13 +35,11 @@ export default function StatsBar({leftStats = [], centerStat, rightStats = []}: 
 
   return (
     <div className="stats-bar">
-        <div className="stats-group stats-group--left">
-          {leftStats.map((stat) => renderStats(stat))}
+      <div className="stats-group stats-group--left">
+        {leftStats.map((stat) => renderStats(stat))}
       </div>
-      <div className="stats-group stats-group--center">
-        <div className="stats stats--large">
-          {centerStat && renderStats(centerStat, "stats--large")}
-        </div>
+      <div className="stats-group stats-group--center">          
+        {centerStat && renderStats(centerStat, "stats--large")}
       </div>
       <div className="stats-group stats-group--right">
         {rightStats.map((stat) => renderStats(stat))}
