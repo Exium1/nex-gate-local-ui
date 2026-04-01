@@ -4,7 +4,7 @@ import GateBase, { type GateBaseProps } from "../GateBase/GateBase";
 export type GateTimedProps = {
   subtitle?: string;
   number: number;
-} & GateBaseProps;
+} & Omit<GateBaseProps, 'text'>;
 
 export default function GateTimed({ subtitle, number, ...gateBaseProps }: GateTimedProps) {
   return (

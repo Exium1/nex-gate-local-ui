@@ -1,16 +1,16 @@
-import type { GateTimedProps } from "../GateTimed/GateTimed"
+import type { GateData, GateDataDummy } from "~/context/RaceContext";
 import GateTimed from "../GateTimed/GateTimed";
 import "./GatesCarousel.scss"
 
 export type GatesCarouselProps = {
-  gates: GateTimedProps[]; // Active gate will be centered
+  gates: (GateData | GateDataDummy)[]; // Active gate will be centered
   activeGateIndex: number;
 }
 
 export default function GatesCarousel({ gates, activeGateIndex }: GatesCarouselProps) {
 
-  const visibleGatesCount = 7; // Odd number
-  const visibleGates: GateTimedProps[] = [];
+  const visibleGatesCount = 9; // Odd number to center (NOT related to gate count)
+  const visibleGates: (GateData | GateDataDummy)[] = [];
 
   // Circular logic
   var i = 0;
@@ -25,11 +25,26 @@ export default function GatesCarousel({ gates, activeGateIndex }: GatesCarouselP
   return (
     <div className="gates-carousel">
       {visibleGates.map((gate, index) => (
-        <GateTimed
-          key={index}
-          {...gate}
-          active={index === Math.floor(visibleGatesCount / 2)}
-        />
+        index >= Math.floor(visibleGatesCount / 2) ? (
+          <GateTimed
+            key={index}
+            subtitle={"-"}
+            number={gate?.gateId}
+            size="xs"
+            active={index === Math.floor(visibleGatesCount / 2)} // This works ??
+          />
+        ) : (
+          <GateTimed
+            key={index}
+            subtitle={'intervalMs' in gate ? gate.intervalMs : "-"}
+            number={gate?.gateId} // Always there
+            x={'beamX' in gate ? gate.beamX : undefined}
+            y={'beamY' in gate ? gate.beamY : undefined}
+            color={'color' in gate ? gate.color : undefined}
+            size="xs"
+            active={index === Math.floor(visibleGatesCount / 2)} // This works ??
+          />
+        )
       ))}
     </div>
   )

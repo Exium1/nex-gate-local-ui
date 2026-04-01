@@ -21,22 +21,6 @@ export function meta({}: Route.MetaArgs) {
   ];
 }
 
-const gatesData: GateTimedProps[] = [
-  { number: 0, color: "neutral", size: "sm", finishLine: true },
-  { number: 1 },
-  { number: 2 },
-  { number: 3 },
-  { number: 4 },
-  // { number: 5 },
-  // { number: 6 },
-  // { number: 7 },
-  // { number: 8 },
-  // { number: 9 },
-  // { number: 10 },
-  // { number: 11 },
-  // { number: 12 },
-]
-
 type SessionSettings = {
   audio: "audio_on" | "audio_only_lap" | "audio_off";
   mode: "time_trial" | "race";
@@ -89,14 +73,7 @@ export default function Live() {
       }
     >
       <GatesLive
-        gates={gatesData.gates.map((gateData) => {console.log(gateData); return ({
-          x: gateData?.beamX,
-          y: gateData?.beamY,
-          active: (gateData?.gateId == gatesData.expectedGateId),
-          finishLine: (gateData?.gateId == 0),
-          subtitle: ((gateData?.intervalMs || 0) / 1000).toString(),
-          number: gateData?.gateId
-        } as GateTimedProps)})}
+        gates={gatesData.gates}
         activeGateIndex={gatesData.expectedGateId}
       />
     </FullscreenShell>

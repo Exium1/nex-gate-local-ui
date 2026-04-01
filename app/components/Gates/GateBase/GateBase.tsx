@@ -8,11 +8,10 @@ export type GateBaseProps = {
   size?: "xs" |"sm" | "md" | "lg" | "xl";
   text?: string;
   active?: boolean;
-  finishLine?: boolean;
   className?: string;
 }
 
-export default function GateBase({ x, y, color = "neutral", size = "sm", text, active = false, finishLine = false, className = "" }: GateBaseProps) {
+export default function GateBase({ x, y, color = "neutral", size = "sm", text, active = false, className = "" }: GateBaseProps) {
   let pointMargin = "0.25rem";
 
   switch (size) {
@@ -45,7 +44,7 @@ export default function GateBase({ x, y, color = "neutral", size = "sm", text, a
             bottom: `clamp(${pointMargin}, ${y}%, calc(100% - ${pointMargin}))` }} 
         />
       )}
-      <span className="gate-base__text">{finishLine ? <FaFlagCheckered /> : text}</span>
+      <span className="gate-base__text">{text === "0" ? <FaFlagCheckered /> : text}</span>
     </div>
   );
 }

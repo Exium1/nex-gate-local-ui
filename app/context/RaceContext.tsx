@@ -1,5 +1,6 @@
 import { createContext, useContext, useReducer, useEffect } from 'react'
 import { socketService } from '../services/socket'
+import type { GateEvent, RichGateEvent } from '~/types/GateEvent'
 
 type RaceState = {
   status: 'idle' | 'active' | 'finished'
@@ -9,36 +10,36 @@ type RaceState = {
   gatesData: GatesData
 }
 
-type GateData = {
-  gateId: number,
-  beamX: number,
-  beamY: number,
-  intervalMs: number
+// Front end object
+export type GateData = {
+  id: string 
+  gateId: number 
+  raceSessionId: string 
+  lapId: string 
+  pilotName: string 
+  beamX: number
+  beamY: number
+  color: "purple" | "yellow" | "green" | "red" | "neutral"
+  triggeredAt: number 
+  intervalMs: string // "1.353"  
+  prevLapSplitDiffMs?: string // "-1.430" Might not be found if not previous lap exists
+}
+
+export type GateDataDummy = {
+  gateId: number
 }
 
 type GatesData = {
-  expectedGateId: number,
-  gates: (GateData | null)[]
-}
-
-type GateEvent = {
-  id: string // UUID
-  gate_id: number // Number
-  race_session_id: string // Reference to active race session (nullable)
-  lap_id: string // Reference to active lap (nullable)
-  pilot_name: string // Reference to selected pilot (nullable)
-  beam_x: number
-  beam_y: number
-  triggered_at: number // Timestamp (ns) relative to lap (first gate is 0)
-  interval_ms: number  // Amount of ms since previous gate (first gate is 0)
+  expectedGateId: number, // Expected gate id / index (synonymous)
+  gates: (GateData | GateDataDummy)[] // Null means no gate data exists yet (keep default unknown styling)
 }
 
 type RaceAction =
-  | { type: 'race_started'; payload: { raceId: string } }
-  | { type: 'race_ended';   payload: { raceId: string } }
-  | { type: 'gate_trigger'; payload: { gateId: string; droneId: string } }
-  | { type: 'lap_complete'; payload: { pilotName: string; lapNumber: number; lapTimeMs: number } }
-  | { type: 'gate_event';   payload: GateEvent }
+  | { type: 'race_started';      payload: { raceId: string } }
+  | { type: 'race_ended';        payload: { raceId: string } }
+  | { type: 'gate_trigger';      payload: { gateId: string; droneId: string } }
+  | { type: 'lap_complete';      payload: { pilotName: string; lapNumber: number; lapTimeMs: number } }
+  | { type: 'rich_gate_event';   payload: RichGateEvent }
 
 const initialState: RaceState = {
   status: 'idle',
@@ -48,11 +49,10 @@ const initialState: RaceState = {
   gatesData: {
     expectedGateId: 0,
     gates: [
-      { gateId: 0, beamX: 5, beamY: 5, intervalMs: 0 },
-      { gateId: 1, beamX: 5, beamY: 5, intervalMs: 0 },
-      { gateId: 2, beamX: 5, beamY: 5, intervalMs: 0 },
-      { gateId: 3, beamX: 5, beamY: 5, intervalMs: 0 },
-      { gateId: 4, beamX: 5, beamY: 5, intervalMs: 0 }
+      { gateId: 0 },
+      { gateId: 1 },
+      { gateId: 2 },
+      { gateId: 3 }
     ]
   }
 }
@@ -67,14 +67,39 @@ function raceReducer(state: RaceState, action: RaceAction): RaceState {
       return { ...state, lastGateTrigger: action.payload }
     case 'lap_complete':
       return { ...state, lapTimes: [...state.lapTimes, action.payload] }
-    case 'gate_event':
+    case 'rich_gate_event':
+      // Convert RichGateEvent to GateEvent and handle any needed data
+      console.log(action.payload);
 
-      const gateEvent = action.payload;      
-      const nextExpectedGateId = (gateEvent.gate_id + 1) % 5;
+      const richGateEvent = action.payload;
+      if (richGateEvent.gate_id > 4) return state; // Dismiss if incorrect gate. VVV
+      const nextExpectedGateId = (richGateEvent.gate_id + 1) % 4; // TODO: Extract gate count
+
+      // TODO: If Lap 0 reset all gates (to dummy gate)
+      // Currently just override the gate data
       let gates = state.gatesData.gates
 
-      gates[gateEvent.gate_id % 5]!.intervalMs = gateEvent.interval_ms;
-      gates[nextExpectedGateId]!.intervalMs = 0;
+      const newGateData: GateData = {
+        id: richGateEvent.id,
+        gateId: richGateEvent.gate_id,
+        raceSessionId: richGateEvent.race_session_id,
+        lapId: richGateEvent.lap_id,
+        pilotName: richGateEvent.pilot_name,
+        beamX: richGateEvent.beam_x,
+        beamY: richGateEvent.beam_y,
+        color: richGateEvent.color || "neutral",
+        triggeredAt: richGateEvent.triggered_at,
+        intervalMs: (richGateEvent.interval_ms / 1000).toFixed(3),
+        prevLapSplitDiffMs:
+          // TODO: Update naming with whatever stat is chosen
+          richGateEvent.best_session_split_diff_ms ? (richGateEvent.best_session_split_diff_ms / 1000).toFixed(3) : undefined
+      }
+
+      // Set gate with new data
+      gates[richGateEvent.gate_id] = newGateData;
+      gates[nextExpectedGateId] = {
+        gateId: nextExpectedGateId
+      }; // Clear entry (to appear as incomplete)
 
       const newGatesData: GatesData = {
         expectedGateId: nextExpectedGateId,
@@ -94,9 +119,7 @@ export function RaceProvider({ children }: { children: React.ReactNode }) {
 
   useEffect(() => {
     return socketService.subscribe((msg: any) => {
-      console.log(msg);
-      // Only forward messages that are race events
-      if (['race_started', 'race_ended', 'gate_trigger', 'lap_complete', 'gate_event'].includes(msg.type)) {
+      if (['race_started', 'race_ended', 'gate_trigger', 'lap_complete', 'rich_gate_event'].includes(msg.type)) {
         dispatch(msg as RaceAction)
       }
     })
