@@ -8,9 +8,10 @@ import { useEffect, useRef, useState } from "react";
 import GatesLive from "~/components/Gates/GatesLive/GatesLive";
 import Button from "~/components/Button/Button";
 import { FaPause, FaPlay } from "react-icons/fa6";
-import { useNavigate } from "react-router";
+import { useNavigate, useSearchParams } from "react-router";
 import { useRace } from "~/context/RaceContext";
 import { useTimer } from "~/hooks/useTimer";
+import { socketService } from "~/services/socket";
 
 export function meta({}: Route.MetaArgs) {
   return [
@@ -31,9 +32,11 @@ export default function Live() {
   const { gatesData, lapStats } = useRace();
   const { elapsedMs, start } = useTimer();
   const display = elapsedMs === null ? "—" : (elapsedMs / 1000).toFixed(3);
+  const [searchParams, setSearchParams] = useSearchParams();
 
   useEffect(() => {
-    // Request to join or something
+    socketService.connect();
+    return () => socketService.disconnect()
   }, [])
 
   useEffect(() => {

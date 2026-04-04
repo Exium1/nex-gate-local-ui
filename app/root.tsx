@@ -44,12 +44,6 @@ export function Layout({ children }: { children: React.ReactNode }) {
 }
 
 export default function App() {
-
-  useEffect(() => {
-    socketService.connect();
-    return () => socketService.disconnect()
-  }, [])
-
   return (
     <RaceProvider>
       <Outlet />

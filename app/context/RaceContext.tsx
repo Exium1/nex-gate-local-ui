@@ -18,7 +18,6 @@ type RaceAction =
  | { type: 'lap_complete';     payload: Lap }
   // | { type: 'race_started';      payload: { raceId: string } }
   // | { type: 'race_ended';        payload: { raceId: string } }
-  // | { type: 'lap_complete';      payload: { pilotName: string; lapNumber: number; lapTimeMs: number } }
 
 const gateCount = 4;
 
