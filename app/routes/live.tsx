@@ -11,6 +11,7 @@ import { FaPause, FaPlay } from "react-icons/fa6";
 import { useNavigate, useSearchParams } from "react-router";
 import { useRace } from "~/context/RaceContext";
 import { useTimer } from "~/hooks/useTimer";
+import { formatElapsedS, useSecondTimer } from "~/hooks/useSecondTimer";
 
 export function meta({}: Route.MetaArgs) {
   return [
@@ -28,16 +29,21 @@ export default function Live() {
 
   const [sessionPaused, setSessionPaused] = useState(false);
   const navigate = useNavigate();
-  const { gatesData, lapStats } = useRace();
+  const { gatesData, lapStats, sessionStartTime, clientRole } = useRace();
   const { elapsedMs, start } = useTimer();
   const display = elapsedMs === null ? "—" : (elapsedMs / 1000).toFixed(3);
   const [searchParams, setSearchParams] = useSearchParams();
+  const { elapsedS, start: startSec } = useSecondTimer();
 
   useEffect(() => {
     if (gatesData.gateHistory.length === 0) return;
     const lastGateId = gatesData.gateHistory[gatesData.gateHistory.length - 1].gateId;
     if (lastGateId === 0) start();
   }, [gatesData]);
+
+  useEffect(() => {
+    startSec(Math.floor((Date.now() - sessionStartTime) / 1000))
+  }, [])
 
   const endSession = () => {
     if (confirm("Would you like to end the session?")) {
@@ -59,7 +65,7 @@ export default function Live() {
             centerStat={{ label: "Lap Time", values: [display, ...(lapStats.lapHistory.map((lap) => (lap.lapTime / 1000).toFixed(3)).reverse())] }}
             rightStats={[
               { label: "Personal Best", value: lapStats.topLapHistory[0] ? (lapStats.topLapHistory[0].lapTime / 1000).toFixed(3) : "—" },
-              { label: "Session", value: "1:23" },
+              { label: "Session", value: formatElapsedS(elapsedS) },
             ]}
           />
           <Divider />

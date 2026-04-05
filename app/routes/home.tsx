@@ -13,7 +13,6 @@ export function meta({}: Route.MetaArgs) {
 }
 
 export default function Home() {
-  console.log("Home rendered");
   const navigate = useNavigate();
   const [sessionPromise] = useState(() => ongoingSessionFetcher());
 

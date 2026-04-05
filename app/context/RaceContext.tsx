@@ -2,15 +2,16 @@ import { createContext, useContext, useReducer, useEffect } from 'react'
 import type { GateData, GateEvent, GatesData, RichGateEvent } from '~/types/gates'
 import { LimitedQueue, SortedLimitedQueue } from '~/helpers/LimitedQueue'
 import type { Lap, LapData, LapStats } from '~/types/laps'
-import { client } from '~/services/client'
+import { client, Role } from '~/services/client'
 
 type RaceState = {
-  // status: 'idle' | 'active' | 'finished'
-  // raceId: string | null
-  // lapTimes: { pilotName: string; lapNumber: number; lapTimeMs: number }[]
-  // lastGateTrigger: { gateId: string; droneId: string } | null
   gatesData: GatesData,
   lapStats: LapStats,
+}
+
+type RaceSession = {
+  sessionStartTime: number,
+  clientRole: Role
 }
 
 type RaceAction =
@@ -19,7 +20,9 @@ type RaceAction =
   // | { type: 'race_started';      payload: { raceId: string } }
   // | { type: 'race_ended';        payload: { raceId: string } }
 
-const gateCount = 4;
+type RaceContextValue = RaceState & RaceSession
+  
+const gateCount = 3;
 
 const initialState: RaceState = {
   gatesData: {
@@ -107,13 +110,16 @@ function raceReducer(state: RaceState, action: RaceAction): RaceState {
   }
 }
 
-const RaceContext = createContext<RaceState>(initialState)
+const RaceContext = createContext<RaceContextValue>({
+  ...initialState,
+  sessionStartTime: Date.now(),
+  clientRole: Role.Spectator
+})
 
-export function RaceProvider({ children }: { children: React.ReactNode }) {
+export function RaceProvider({ clientRole, sessionStartTime, children }: { clientRole: Role, sessionStartTime: number, children: React.ReactNode }) {
   const [state, dispatch] = useReducer(raceReducer, initialState)
 
   useEffect(() => {
-    console.log('subscribe')
     return client.socket?.subscribe((msg: any) => {
       if (['rich_gate_event', 'lap_complete'].includes(msg.type)) {
         dispatch(msg as RaceAction)
@@ -121,7 +127,7 @@ export function RaceProvider({ children }: { children: React.ReactNode }) {
     })
   }, [])
 
-  return <RaceContext.Provider value={state}>{children}</RaceContext.Provider>
+  return <RaceContext.Provider value={{ ...state, clientRole, sessionStartTime }}>{children}</RaceContext.Provider>
 }
 
 export const useRace = () => useContext(RaceContext)

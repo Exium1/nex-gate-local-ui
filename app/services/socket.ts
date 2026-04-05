@@ -49,11 +49,8 @@ export class SocketService {
   }
 
   request<T>(type: string, payload: object, timeoutMs = 5000): Promise<T> {
-    console.log("request: ", type, payload)
     return new Promise((resolve, reject) => {
       const requestId = this.requestCount++;
-
-      console.log(requestId)
 
       const timeout = setTimeout(() => {
         this.pending.delete(requestId)
