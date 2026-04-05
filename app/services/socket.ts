@@ -5,16 +5,28 @@ type PendingRequest = {
   timeout: ReturnType<typeof setTimeout>
 }
 
-class SocketService {
+export class SocketService {
   private ws: WebSocket | null = null
   private handlers = new Set<(msg: any) => void>()
-  private pending = new Map<string, PendingRequest>()
+  private pending = new Map<number, PendingRequest>()
+  requestCount = 1;
 
-  connect(socketURL = `ws://${location.host.replace(location.port, "3001")}/ws`) {
-    if (this.ws) this.disconnect();
+  connect(socketURL = `ws://${location.host.replace(location.port, "3001")}/ws`): Promise<void> {
+    return new Promise((resolve, reject) => {
+      const ws = new WebSocket(socketURL)
+      this.ws = ws
 
-    this.ws = new WebSocket(socketURL);
-    this.ws.onmessage = (e) => this.onMessage(e.data)
+      ws.onopen = () => resolve()
+      ws.onerror = (e) => reject(new Error('WebSocket failed to connect'))
+
+      ws.onmessage = (event) => {
+        this.onMessage(event.data)
+      }
+
+      ws.onclose = () => {
+        console.log('Disconnected')
+      }
+    })
   }
 
   disconnect() {
@@ -37,8 +49,11 @@ class SocketService {
   }
 
   request<T>(type: string, payload: object, timeoutMs = 5000): Promise<T> {
+    console.log("request: ", type, payload)
     return new Promise((resolve, reject) => {
-      const requestId = crypto.randomUUID()
+      const requestId = this.requestCount++;
+
+      console.log(requestId)
 
       const timeout = setTimeout(() => {
         this.pending.delete(requestId)

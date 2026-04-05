@@ -1,8 +1,9 @@
 import Button from "~/components/Button/Button";
 import type { Route } from "./+types/home";
 import { useNavigate } from "react-router";
-import { Suspense, use } from "react";
+import { Suspense, use, useState } from "react";
 import ButtonLoaderTest from "~/components/ButtonLoaderTest/ButtonLoaderTest";
+import { rejects } from "assert";
 
 export function meta({}: Route.MetaArgs) {
   return [
@@ -12,12 +13,12 @@ export function meta({}: Route.MetaArgs) {
 }
 
 export default function Home() {
-
+  console.log("Home rendered");
   const navigate = useNavigate();
+  const [sessionPromise] = useState(() => ongoingSessionFetcher());
 
   const startSession = () => {
     if (confirm("Would you like to start a session?")) {
-      console.log("Session started");
       navigate("/live");
     }
   }
@@ -26,9 +27,9 @@ export default function Home() {
     <div>
       <h1>Home!</h1>
       <Suspense fallback={<div>loading...</div>}>
-        <ButtonLoaderTest fetcher={ongoingSessionFetcher()}/>
+        <ButtonLoaderTest fetcher={sessionPromise} />
       </Suspense>
-    </div>  
+    </div>
   );
 }
 
@@ -40,18 +41,23 @@ export type RaceSession = {
 }
 
 async function ongoingSessionFetcher(): Promise<RaceSession | null> {
-  return new Promise<RaceSession | null>((res) => {
+  return new Promise<RaceSession | null>((res, rej) => {
     setTimeout(async () => {
-      console.log("pre fetch")
-      const response = await fetch(new URL("http://localhost:3001/active-session"), {
-        mode: 'cors',
-        headers: {'Content-Type':'application/json'},
-      })
+      let response;
+      try {
+        response = await fetch(new URL("http://localhost:3001/active-session"), {
+          mode: 'cors',
+          headers: {'Content-Type':'application/json'},
+        })
+      } catch (e) {
+        res(null)
+        return;
+      }
 
-      if (response.status != 200) {
-        res(null);
-      } else {
+      if (response.status == 200) {
         res(await response.json());
+      } else {
+        res(null);
       }
     }, 1000)
   });

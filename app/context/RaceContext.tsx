@@ -1,8 +1,8 @@
 import { createContext, useContext, useReducer, useEffect } from 'react'
-import { socketService } from '../services/socket'
 import type { GateData, GateEvent, GatesData, RichGateEvent } from '~/types/gates'
 import { LimitedQueue, SortedLimitedQueue } from '~/helpers/LimitedQueue'
 import type { Lap, LapData, LapStats } from '~/types/laps'
+import { client } from '~/services/client'
 
 type RaceState = {
   // status: 'idle' | 'active' | 'finished'
@@ -113,7 +113,8 @@ export function RaceProvider({ children }: { children: React.ReactNode }) {
   const [state, dispatch] = useReducer(raceReducer, initialState)
 
   useEffect(() => {
-    return socketService.subscribe((msg: any) => {
+    console.log('subscribe')
+    return client.socket?.subscribe((msg: any) => {
       if (['rich_gate_event', 'lap_complete'].includes(msg.type)) {
         dispatch(msg as RaceAction)
       }
