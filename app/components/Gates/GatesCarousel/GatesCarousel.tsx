@@ -1,9 +1,10 @@
+import type { EnrichedGateEvent } from "@exium1/nex-gate-local-shared";
 import GateTimed from "../GateTimed/GateTimed";
 import "./GatesCarousel.scss"
-import type { GateData } from "~/types/gates";
+// import type { GateData } from "~/types/gates";
 
 export type GatesCarouselProps = {
-  gateHistory: GateData[]; 
+  gateHistory: EnrichedGateEvent[]; 
   gateCount: number
   expectedGateId: number; // Active (next/expected) gate will be centered
 }
@@ -12,7 +13,7 @@ export default function GatesCarousel({ gateHistory, gateCount, expectedGateId }
 
   const visibleGatesCount = 9; // Odd number to center (NOT related to gate count)
   const visibleGatesSideCount = Math.floor(visibleGatesCount / 2);
-  const visibleGates: GateData[] = gateHistory.slice(-1 * visibleGatesSideCount);
+  const visibleGates: EnrichedGateEvent[] = gateHistory.slice(-1 * visibleGatesSideCount);
   const dummyGates = new Array(visibleGatesSideCount - visibleGates.length).fill(1);
   const futureGateIds = [];
 
@@ -33,7 +34,7 @@ export default function GatesCarousel({ gateHistory, gateCount, expectedGateId }
       {visibleGates.map((gate, index) => (
         <GateTimed
           key={index}
-          subtitle={gate.intervalMs ?? "—"}
+          subtitle={(gate.intervalMs / 1000).toFixed(3) ?? "—"}
           number={gate.gateId}
           x={gate.beamX}
           y={gate.beamY}

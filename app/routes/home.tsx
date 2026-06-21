@@ -1,9 +1,7 @@
-import Button from "~/components/Button/Button";
 import type { Route } from "./+types/home";
 import { useNavigate } from "react-router";
-import { Suspense, use, useState } from "react";
+import { Suspense, useState } from "react";
 import ButtonLoaderTest from "~/components/ButtonLoaderTest/ButtonLoaderTest";
-import { rejects } from "assert";
 
 export function meta({}: Route.MetaArgs) {
   return [
@@ -13,14 +11,7 @@ export function meta({}: Route.MetaArgs) {
 }
 
 export default function Home() {
-  const navigate = useNavigate();
   const [sessionPromise] = useState(() => ongoingSessionFetcher());
-
-  const startSession = () => {
-    if (confirm("Would you like to start a session?")) {
-      navigate("/live");
-    }
-  }
 
   return (
     <div>
@@ -44,7 +35,7 @@ async function ongoingSessionFetcher(): Promise<RaceSession | null> {
     setTimeout(async () => {
       let response;
       try {
-        response = await fetch(new URL("http://localhost:3001/active-session"), {
+        response = await fetch(new URL("http://localhost:3001/race-session/active"), {
           mode: 'cors',
           headers: {'Content-Type':'application/json'},
         })

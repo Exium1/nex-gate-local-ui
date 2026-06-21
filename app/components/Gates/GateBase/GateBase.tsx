@@ -4,7 +4,7 @@ import { FaFlagCheckered } from "react-icons/fa6";
 export type GateBaseProps = {
   x?: number; // Percentage from the left
   y?: number; // Percentage from the top
-  color?: "purple" | "yellow" | "green" | "red" | "neutral";
+  color?: "purple" | "yellow" | "green" | "red" | "neutral" | null;
   size?: "xs" |"sm" | "md" | "lg" | "xl";
   text?: string;
   active?: boolean;

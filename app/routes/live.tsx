@@ -59,12 +59,12 @@ export default function Live() {
         <>
           <StatsBar 
             leftStats={[
-              { label: "Best Lap", value: lapStats.topLapHistory[0] ? (lapStats.topLapHistory[0].lapTime / 1000).toFixed(3) : "—" },
+              { label: "Best Lap", value: lapStats.topLapHistory[0] ? (lapStats.topLapHistory[0].lapDuration / 1000).toFixed(3) : "—" },
               { label: "Lap Count", value: lapStats.lapCount.toString() },
             ]}
-            centerStat={{ label: "Lap Time", values: [display, ...(lapStats.lapHistory.map((lap) => (lap.lapTime / 1000).toFixed(3)).reverse())] }}
+            centerStat={{ label: "Lap Time", values: [display, ...(lapStats.lapHistory.map((lap) => (lap.lapDuration / 1000).toFixed(3)).reverse())] }}
             rightStats={[
-              { label: "Personal Best", value: lapStats.topLapHistory[0] ? (lapStats.topLapHistory[0].lapTime / 1000).toFixed(3) : "—" },
+              { label: "Personal Best", value: lapStats.topLapHistory[0] ? (lapStats.topLapHistory[0].lapDuration / 1000).toFixed(3) : "—" },
               { label: "Session", value: formatElapsedS(elapsedS) },
             ]}
           />

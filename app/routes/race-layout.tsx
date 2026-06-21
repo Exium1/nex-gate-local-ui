@@ -1,12 +1,13 @@
+import { Role } from "@exium1/nex-gate-local-shared";
 import { useEffect, useState } from "react";
 import { Outlet, useNavigate } from "react-router";
 import { RaceProvider } from "~/context/RaceContext";
-import { client, Role } from "~/services/client";
+import { client } from "~/services/client";
 
 export default function RaceLayout() {
   const [ready, setReady] = useState(false)
   const [sessionStartTime, setSessionStartTime] = useState<number>(Date.now());
-  const [clientRole, setClientRole] = useState<Role>(Role.Spectator);
+  const [clientRole, setClientRole] = useState<Role>(Role.SPECTATOR);
 
   useEffect(() => {
     client.join() // Attempt to get director role
@@ -17,7 +18,7 @@ export default function RaceLayout() {
       )
       .catch((e) => {
         console.log(e);
-        window.location.href = "/";
+        // window.location.href = "/";
       })
 
     return () => client.leave()

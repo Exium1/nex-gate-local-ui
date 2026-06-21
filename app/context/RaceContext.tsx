@@ -1,29 +1,22 @@
 import { createContext, useContext, useReducer, useEffect } from 'react'
-import type { GateData, GateEvent, GatesData, RichGateEvent } from '~/types/gates'
+import type { GatesData } from '~/types/gates'
 import { LimitedQueue, SortedLimitedQueue } from '~/helpers/LimitedQueue'
-import type { Lap, LapData, LapStats } from '~/types/laps'
-import { client, Role } from '~/services/client'
+import type { LapStats } from '~/types/laps'
+import { client } from '~/services/client'
+import { ClientOutboundMessageSchema, Role, type ClientOutboundMessage, type CompletedLap, type EnrichedGateEvent, type Lap } from '@exium1/nex-gate-local-shared'
+import { Value } from '@sinclair/typebox/value'
 
 type RaceState = {
   gatesData: GatesData,
   lapStats: LapStats,
 }
-
 type RaceSession = {
   sessionStartTime: number,
   clientRole: Role
 }
-
-type RaceAction =
- | { type: 'rich_gate_event';   payload: RichGateEvent }
- | { type: 'lap_complete';     payload: Lap }
-  // | { type: 'race_started';      payload: { raceId: string } }
-  // | { type: 'race_ended';        payload: { raceId: string } }
-
 type RaceContextValue = RaceState & RaceSession
   
 const gateCount = 3;
-
 const initialState: RaceState = {
   gatesData: {
     expectedGateId: 0,
@@ -37,38 +30,24 @@ const initialState: RaceState = {
   }
 }
 
-const raceGateHistory = new LimitedQueue<GateData>(5); // NOT GATE COUNT
-const lapHistory = new LimitedQueue<LapData>(2);
-const topLapHistory = new SortedLimitedQueue<LapData>(3, (a, b) => a.lapTime - b.lapTime); // Ascending
+const raceGateHistory = new LimitedQueue<EnrichedGateEvent>(5); // NOT GATE COUNT
+const lapHistory = new LimitedQueue<CompletedLap>(2);
+const topLapHistory = new SortedLimitedQueue<CompletedLap>(3, (a, b) => a.lapDuration - b.lapDuration); // Ascending
+const lapIds = new Set<string>();
 
-function raceReducer(state: RaceState, action: RaceAction): RaceState {
+function raceReducer(state: RaceState, action: ClientOutboundMessage): RaceState {
   switch (action.type) {
-    case 'rich_gate_event':
+    case 'RICH_GATE_EVENT':
       console.log('> rich_gate_event')
       console.log(action.payload);
+      
+      const richGateEvent = action.payload as EnrichedGateEvent;
 
-      const richGateEvent = action.payload;
-      if (richGateEvent.gate_id > (gateCount - 1)) return state; // Dismiss if incorrect gate. VVV
+      if (richGateEvent.gateId > (gateCount - 1)) return state; // Dismiss if incorrect gate. VVV
+      const nextExpectedGateId = (richGateEvent.gateId + 1) % gateCount; // TODO: Extract gate count
 
-      const nextExpectedGateId = (richGateEvent.gate_id + 1) % gateCount; // TODO: Extract gate count
-      const newGateData: GateData = {
-        id: richGateEvent.id,
-        gateId: richGateEvent.gate_id,
-        raceSessionId: richGateEvent.race_session_id,
-        lapId: richGateEvent.lap_id,
-        pilotName: richGateEvent.pilot_name,
-        beamX: richGateEvent.beam_x,
-        beamY: richGateEvent.beam_y,
-        color: richGateEvent.color || "neutral",
-        triggeredAt: richGateEvent.triggered_at,
-        intervalMs: (richGateEvent.interval_ms / 1000).toFixed(3),
-        prevLapSplitDiffMs:
-          // TODO: Update naming with whatever stat is chosen
-          richGateEvent.best_session_split_diff_ms ? (richGateEvent.best_session_split_diff_ms / 1000).toFixed(3) : undefined
-      }
-
-      if (!raceGateHistory.queue.find((gate) => gate.id === newGateData.id)) // Dismiss duplicate write
-        raceGateHistory.enqueue(newGateData);
+      if (!raceGateHistory.queue.find((gate) => gate.id === richGateEvent.id)) // Dismiss duplicate write
+        raceGateHistory.enqueue(richGateEvent);
 
       const newGatesData: GatesData = {
         expectedGateId: nextExpectedGateId,
@@ -77,29 +56,26 @@ function raceReducer(state: RaceState, action: RaceAction): RaceState {
       }
 
       return { ...state, gatesData: newGatesData }
-    case 'lap_complete':
-      console.log('> lap_complete')
+    case 'LAP_COMPLETED':
+      console.log('> lap_completed')
       console.log(action.payload);
 
-      const newLap = action.payload;
-      const newLapData: LapData = {
-        id: newLap.id,
-        raceSessionId: newLap.race_session_id,
-        pilotName: newLap.pilot_name,
-        lapTime: newLap.lap_time_ms,
-        gateCount: newLap.gate_count,
-        startedAt: newLap.started_at
+      const newLap = action.payload as CompletedLap;
+
+      lapIds.add(newLap.id)
+
+      // Only trigger new lap in history and count if unique (stateless)
+      if (!lapHistory.queue.find((lap) => lap.id === newLap.id)) {
+        lapHistory.enqueue(newLap);
       }
 
-      if (!lapHistory.queue.find((lap) => lap.id === newLapData.id)) {
-        lapHistory.enqueue(newLapData);
+      // Only trigger top lap if unique (stateless)
+      if (!topLapHistory.queue.find((lap) => lap.id === newLap.id)) {
+        topLapHistory.enqueue(newLap);
       }
-
-      if (!topLapHistory.queue.find((lap) => lap.id === newLapData.id))
-        topLapHistory.enqueue(newLapData);
 
       const newLapStats: LapStats = {
-        lapCount: state.lapStats.lapCount + 1,
+        lapCount: lapIds.size,
         lapHistory: lapHistory.queue,
         topLapHistory: topLapHistory.queue
       }
@@ -113,7 +89,7 @@ function raceReducer(state: RaceState, action: RaceAction): RaceState {
 const RaceContext = createContext<RaceContextValue>({
   ...initialState,
   sessionStartTime: Date.now(),
-  clientRole: Role.Spectator
+  clientRole: Role.SPECTATOR
 })
 
 export function RaceProvider({ clientRole, sessionStartTime, children }: { clientRole: Role, sessionStartTime: number, children: React.ReactNode }) {
@@ -121,9 +97,12 @@ export function RaceProvider({ clientRole, sessionStartTime, children }: { clien
 
   useEffect(() => {
     return client.socket?.subscribe((msg: any) => {
-      if (['rich_gate_event', 'lap_complete'].includes(msg.type)) {
-        dispatch(msg as RaceAction)
+      if (!Value.Check(ClientOutboundMessageSchema, msg)) {
+        console.log("Incoming ws message not recognized ", msg);
+        return
       }
+
+      dispatch(msg as ClientOutboundMessage)
     })
   }, [])
 

@@ -1,4 +1,5 @@
-import type { GateData } from "~/types/gates";
+// import type { GateData } from "~/types/gates";
+import type { EnrichedGateEvent } from "@exium1/nex-gate-local-shared";
 import GateBase from "../GateBase/GateBase";
 import GatesCarousel from "../GatesCarousel/GatesCarousel";
 import "./GatesLive.scss"
@@ -6,7 +7,7 @@ import { useEffect, useRef, useState } from "react";
 import { useTimer } from "~/hooks/useTimer";
 
 export type GatesLiveProps = {
-  gateHistory: GateData[]; 
+  gateHistory: EnrichedGateEvent[]; 
   gateCount: number
   expectedGateId: number; // Active (next/expected) gate will be centered
 }

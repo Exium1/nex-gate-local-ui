@@ -1,3 +1,6 @@
+import { ClientInboundMessageSchema, ClientOutboundMessageSchema, JoinRaceSessionResponseMessageSchema, JoinRaceSessionResponseSchema, type ClientInboundMessage, type ClientOutboundMessage } from "@exium1/nex-gate-local-shared"
+import { Value } from "@sinclair/typebox/value"
+
 // src/services/socket.ts
 type PendingRequest = {
   resolve: (msg: unknown) => void
@@ -12,6 +15,7 @@ export class SocketService {
   requestCount = 1;
 
   connect(socketURL = `ws://${location.host.replace(location.port, "3001")}/ws`): Promise<void> {
+    console.log("ISTFG")
     return new Promise((resolve, reject) => {
       const ws = new WebSocket(socketURL)
       this.ws = ws
@@ -66,16 +70,25 @@ export class SocketService {
     let msg: any
     try { msg = JSON.parse(raw) } catch { return }
 
-    // If it has a requestId and we're waiting on it, resolve the promise
-    if (msg.requestId && this.pending.has(msg.requestId)) {
-      const pending = this.pending.get(msg.requestId)!
-      clearTimeout(pending.timeout)
-      this.pending.delete(msg.requestId)
+    if (!Value.Check(ClientOutboundMessageSchema, msg)) {
+      const errors = [...Value.Errors(JoinRaceSessionResponseMessageSchema, msg)]
+      console.log(errors)
+      return;
+    }
 
-      if (msg.type === 'error') {
+    const inboundMsg = msg as ClientOutboundMessage;
+    const requestId = "requestId" in inboundMsg ? inboundMsg.requestId : undefined;
+
+    // If it has a requestId and we're waiting on it, resolve the promise
+    if (requestId && this.pending.has(requestId)) {
+      const pending = this.pending.get(requestId)!
+      clearTimeout(pending.timeout)
+      this.pending.delete(requestId)
+
+      if (msg.type === 'ERROR') {
         pending.reject(new Error(msg.message))
       } else {
-        pending.resolve(msg)
+        pending.resolve(msg.payload)
       }
       return
     }
